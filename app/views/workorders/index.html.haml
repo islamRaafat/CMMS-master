@@ -1,0 +1,44 @@
+.view-wrapper
+  %h1 Work Request List
+  = link_to "New", new_workorder_path, :class => "btn btn-primary"
+  %table.table.table-striped.table-condensed
+    %thead
+      %tr
+        %th #
+        %th Workorder No
+        %th WO Type
+        %th WF State
+        %th Priority
+        %th Asset
+        %th Description
+        %th Asset Note
+        %th Assigned To
+    %tbody
+      - @workorders.each do |a|
+        %tr
+          %td= a.id
+          %td= a.wo_no
+          %td= a.wo_type_val
+          %td= a.workflow_state
+          %td= a.priority_val
+          %td= link_to Asset.find(a.asset_id).asset_no, asset_path(a.asset_id)
+          %td= a.description
+          %td= a.asset_note
+          %td= (User.find(a.assigned_to_id).fullname rescue "")
+          %td
+            = link_to "update", edit_workorder_path(a)
+            = "|"
+            = link_to "delete", workorder_path(a), :method => :delete, 
+                                                   :confirm => "Sure ?", 
+                                                   :remote => true,
+                                                   :class => "del-machine",
+                                                   "data-type" => "json"
+  = will_paginate @workorders, :renderer => WillPaginate::ActionView::BootstrapLinkRenderer
+            
+:javascript
+  $(".del-machine").bind("ajax:success", function(ev, res){
+    if(res.success){
+      $(this).parents("tr").fadeOut();
+    }
+  });
+
